@@ -1,0 +1,335 @@
+<script type="text/javascript">
+function changeOrderImage(id, sort_type) {
+    document.getElementById(id).className = "sort " + sort_type;
+}
+</script>
+<% include_calendar_headers_tags %>
+
+<% team_title = TeamManager.find_by_user_id(@team_manager_id).title %>
+<h2><%= team_title %> Team</h2>
+<h3><%= l(:responsible_manager) %><%= User.find_by_id(@team_manager_id).name %></h3> 
+<h4><%= l(:issues_of_members) %><%= team_title %></h4>
+
+
+
+
+
+<% if @team_members.length > 0 %>
+	<%= form_for @tempIssues, :url => 'team_details' do |f| %>
+		
+		
+
+		<% if @filter_clicked == "1"  %>
+
+
+			<% if @filtered_team_member_id.to_i != -1 %>	
+				
+				<% @tempIssues.each do |iss| %>
+					<% if iss.assigned_to_id == @filtered_team_member_id.to_i  %>
+						<% @index_for_user = (@tempIssues.index(iss)).to_i %>
+						<% @user_name = User.find(@tempIssues[@index_for_user].assigned_to_id).name %>
+						<% @user_id = @tempIssues[@index_for_user].assigned_to_id %>
+
+					<% end %>
+				<% end %>
+
+				<p><%= f.label l(:user) %> : <%= f.select :assigned_to_id,  @tempIssues.each.collect{|is| [User.find_by_id(is.assigned_to_id).name, is.assigned_to_id]} + [ ["View All", -1] ] , :required => :true, :selected =>  [@user_name, @user_id]  %></p>	
+				
+			<% else %>
+				
+				<p><%= f.label l(:user) %> : <%= f.select :assigned_to_id, [ ["View All", -1] ] + @tempIssues.each.collect{|is| [User.find_by_id(is.assigned_to_id).name, is.assigned_to_id]}, :required => :true, :selected => [ ["View All", -1] ] %></p>
+			<% end %>	
+
+			<% @tempIssues.delete_if { |is| is.id.nil? } %>
+
+			<% if @tempIssues.length > 0 %>
+				<% if @tempIssues.first.id.nil? %>
+					<% @tempIssues.delete(@tempIssues.first) %>
+				<% end %>
+			<% end %>	
+			
+			<% @newIssues = [] %>
+			<% @tempIssues.each do |is1| %>
+				<% @newIssues.push(is1) %>
+			<% end %>	
+
+			<% @tempIssues.clear %> 
+
+			<% @newIssues.each do |is1| %>
+				<% @flag = 0 %>
+				<% @tempIssues.each do |is2| %>
+					<% if is1.project_id == is2.project_id %> 
+						<% @flag = 1 %>
+					<% end %>
+				<% end %>	
+				<% if @flag == 0 %>
+					<% @tempIssues.push(is1) %>
+				<% end %>
+			<% end %>			
+			
+			<% @tempIssues.delete_if { |is| is.id.nil? } %>
+
+			<% if @tempIssues.length > 0 %>
+				<% if @tempIssues.first.id.nil? %>
+					<% @tempIssues.delete(@tempIssues.first) %>
+				<% end %>
+			<% end %>
+
+			<% if @filtered_project_id.to_i != -1 %>		
+				
+				<% @tempIssues.each do |iss| %>
+					<% if iss.project_id == @filtered_project_id.to_i  %>
+						<% @index_for_project = (@tempIssues.index(iss)).to_i %>
+						<% @project_name = Project.find(@tempIssues[@index_for_project].project_id).name %>
+						<% @project_id = @tempIssues[@index_for_project].project_id %>
+					<% end %>
+				<% end %>	
+
+
+
+				<% @allIssues.each do |is1| %>
+					<% unless @tempIssues.any? {|is2| is2[:project_id] == is1.project_id  } %>
+						<% is3 = is1 %>
+						<% @tempIssues.push(is3) %>
+					<% end %>			
+				<% end %>
+
+
+				<p><%= f.label l(:project) %> : <%= f.select :project_id, @tempIssues.each.collect{|is| [Project.find_by_id(is.project_id).name, is.project_id]}  + [ ["View All", -1] ] ,
+			 	:required => :true, :selected => [@project_name, @project_id]  %></p>
+			
+			<% else %>
+			
+				<% @allIssues.each do |is1| %>
+					<% unless @tempIssues.any? {|is2| is2[:project_id] == is1.project_id  } %>
+						<% is3 = is1 %>
+						<% @tempIssues.push(is3) %>
+					<% end %>			
+				<% end %>
+
+
+
+				<p><%= f.label l(:project) %> : <%= f.select :project_id, [ ["View All", -1] ] + @tempIssues.each.collect{|is| [Project.find_by_id(is.project_id).name, is.project_id]}   ,
+			 :required => :true, :selected => [ ["View All", -1] ] %></p>
+			<% end %>
+		
+		<% else %>		
+			
+		
+			<p><%= f.label l(:user) %> : <%= f.select :assigned_to_id, [ ["View All", -1] ] + @tempIssues.each.collect{|is| [User.find_by_id(is.assigned_to_id).name, is.assigned_to_id]}, :required => :true, :selected => [ ["View All", -1] ] %></p>
+
+			<% @tempIssues.delete_if { |is| is.id.nil? } %>	
+
+			<% if @tempIssues.first.id.nil? %>
+				<% @tempIssues.delete(@tempIssues.first) %>
+			<% end %>
+			
+			<% @newIssues = [] %>
+			<% @tempIssues.each do |is1| %>
+				<% @newIssues.push(is1) %>
+			<% end %>	
+
+
+			<% @tempIssues.clear %> 
+
+			 
+			<% @newIssues.each do |is1| %>
+				<% @flag = 0 %>
+				<% @tempIssues.each do |is2| %>
+					<% if is1.project_id == is2.project_id %> 
+						<% @flag = 1 %>
+					<% end %>
+				<% end %>	
+				<% if @flag == 0 %>
+					<% @tempIssues.push(is1) %>
+				<% end %>
+			<% end %>			
+			
+			<% @tempIssues.delete_if { |is| is.id.nil? } %>
+
+
+			
+			<% puts @allIssues.length %>
+
+			<% @allIssues.each do |is1| %>
+				<% unless @tempIssues.any? {|is2| is2[:project_id] == is1.project_id  } %>
+					<% is3 = is1 %>
+					<% @tempIssues.push(is3) %>
+				<% end %>			
+			<% end %>	
+
+			
+			<% puts @allIssues.length %>
+
+
+			<p><%= f.label l(:project) %> : <%= f.select :project_id, [ ["View All", -1] ] + @tempIssues.each.collect{|is| [Project.find_by_id(is.project_id).name, is.project_id]}   ,
+			 :required => :true, :selected => [ ["View All", -1] ] %></p>
+	
+		<% end %>
+
+		<span style>
+			<p><%= l(:start_date) %> 
+				<%= text_field_tag :values_start_date_f  %>
+				<%= calendar_for("values_start_date_f") %>
+			</p>
+		</span>	
+
+		<span style>
+			<p><%= l(:end_date) %> 
+				<%= text_field_tag :values_due_date_f  %>
+				<%= calendar_for("values_due_date_f") %>
+			</p>
+		</span>	
+		<p><%= f.submit l(:filter) %></p>
+	<% end %>
+
+
+<% end %>	
+
+
+<% if @team_members.length > 0 %>
+	<table class="list ">
+		<thead>
+			<tr>
+				
+				<% if @sortType == "asc" %>
+
+					<th><%=link_to l(:assignee), {:controller => 'team_members', :action => 'team_details', :attr => "Assignee",:sort_type => "Desc",:from_link => "To_Sort"}, {:title => "Sort By Asignee", :id => "assignee_sort"}%></th>
+					<th><%=link_to l(:issue_subject), {:controller => 'team_members', :action => 'team_details', :attr => "Subject",:sort_type => "Desc",:from_link => "To_Sort"}, {:title => "Sort By Issue Subject", :id => "subject_sort"}%></th>
+					<th><%=link_to l(:project_name), {:controller => 'team_members', :action => 'team_details', :attr => "Project Name",:sort_type => "Desc",:from_link => "To_Sort"}, {:title => "Sort By Project Name", :id => "project_sort"}%></th>
+					<th><%=link_to l(:done_ratio), {:controller => 'team_members', :action => 'team_details', :attr => "DoneRatio",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Done Ratio", :id => "done_ratio_sort"}%></th>
+					<th><%=link_to l(:priority), {:controller => 'team_members', :action => 'team_details', :attr => "Priority",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Priority", :id => "priority_sort"}%></th>
+					<th><%=link_to l(:tracker), {:controller => 'team_members', :action => 'team_details', :attr => "Tracker",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Tracker", :id => "tracker_sort"}%></th>
+					<th><%=link_to l(:status), {:controller => 'team_members', :action => 'team_details', :attr => "Status",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Status", :id => "status_sort"}%></th>
+					
+					<th><%=link_to l(:start_date_issue), {:controller => 'team_members', :action => 'team_details', :attr => "StartDate",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Start Date", :id => "start_date_sort"}%></th>
+					<th><%=link_to l(:due_date_issue), {:controller => 'team_members', :action => 'team_details', :attr => "DueDate",:sort_type => "Desc", :from_link => "To_Sort"}, {:title => "Sort By Due Date", :id => "due_date_sort"}%></th>
+				
+					
+					<%= javascript_tag "changeOrderImage('#{@sortAttr}','asc')" %>
+				<% else %>
+					<th><%=link_to l(:assignee), {:controller => 'team_members', :action => 'team_details', :attr => "Assignee",:sort_type => "Asc",:from_link => "To_Sort"}, {:title => "Sort By Asignee", :id => "assignee_sort"}%></th>
+					<th><%=link_to l(:issue_subject), {:controller => 'team_members', :action => 'team_details', :attr => "Subject",:sort_type => "Asc",:from_link => "To_Sort"}, {:title => "Sort By Issue Subject", :id => "subject_sort"}%></th>
+					<th><%=link_to l(:project_name), {:controller => 'team_members', :action => 'team_details', :attr => "Project Name",:sort_type => "Asc",:from_link => "To_Sort"}, {:title => "Sort By Project Name", :id => "project_sort"}%></th>
+					<th><%=link_to l(:done_ratio), {:controller => 'team_members', :action => 'team_details', :attr => "DoneRatio",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Done Ratio", :id => "done_ratio_sort"}%></th>
+					<th><%=link_to l(:priority), {:controller => 'team_members', :action => 'team_details', :attr => "Priority",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Priority", :id => "priority_sort"}%></th>
+					<th><%=link_to l(:tracker), {:controller => 'team_members', :action => 'team_details', :attr => "Tracker",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Tracker", :id => "tracker_sort"}%></th>
+					<th><%=link_to l(:status), {:controller => 'team_members', :action => 'team_details', :attr => "Status",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Status", :id => "status_sort"}%></th>
+					<th><%=link_to l(:start_date_issue), {:controller => 'team_members', :action => 'team_details', :attr => "StartDate",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Start Date", :id => "start_date_sort"}%></th>
+					<th><%=link_to l(:due_date_issue), {:controller => 'team_members', :action => 'team_details', :attr => "DueDate",:sort_type => "Asc", :from_link => "To_Sort"}, {:title => "Sort By Due Date", :id => "due_date_sort"}%></th>
+
+					
+					<%= javascript_tag "changeOrderImage('#{@sortAttr}','desc')" %>
+				<% end %>
+			</tr>
+		</thead>
+		<tbody>
+			<% if  @filtered_project_id > 0 %>
+				<% @allIssues.each do |iss| %>
+					<% if iss.project_id != @filtered_project_id %>
+						<% @allIssues.delete(iss) %>
+					<% end %>
+				<% end	%>	
+			<% end %>
+
+
+			<% @allIssues.each do |issue| %>
+					<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+					<td>
+						<% if TeamManager.find_by_user_id(issue.assigned_to_id) %>
+							<%= link_to User.find_by_id(issue.assigned_to_id).name, {:controller => "team_members", :action => "team_details", :from => "Parent", :member_manager_user_id => issue.assigned_to_id},{:title => "This member is a team manager, click to see his managerial page", :class => "icon icon-cancel"} %>  
+								 
+
+						<% else %>	
+							<%= User.find_by_id(issue.assigned_to_id).name %>
+						<% end %>	
+					</td>	
+					<td><%= link_to issue.subject, {:controller => "issues", :action => "show", :id => issue.id}, {:title => "Click to see details of the issue"} %></td>
+					<td><%= link_to Project.find(issue.project_id).name, {:controller => "projects", :action => "show", :id => Project.find(issue.project_id).identifier}, {:title => "Click to see details of the project"} %></td>
+					
+					<% @ratio = issue.done_ratio %>
+					<td class="done_ratio">
+						<table class="progress" style="width: 100px;">
+						<tbody>	
+							<tr>
+								<% if @ratio == 0 %>	
+									<td class="todo", style = "width: 100%;"></td>
+								<% elsif @ratio == 100 %>
+									<td class="closed", style = "width: 100%;"></td>
+								<% elsif @ratio < 10 %>
+									<td class="closed", style = "width: 5%;"></td>		
+									<td class="todo", style = "width: 95%;"></td>
+								<% else %>	
+									<td class="closed", style = "width: <%= issue.done_ratio%>%;"></td>		
+									<td class="todo", style = "width: <%= 100 - (issue.done_ratio)%>%;"></td>
+								<% end %>
+							</tr>	
+						</tbody>		
+						</table>
+
+					<td><%= issue.priority %></td>
+					<td><%= issue.tracker %></td>
+					<td><%= issue.status %></td>
+					<td><% if issue.start_date.nil? %>
+							-
+							<% issue.start_date = "1999.10.10" %>
+							<% issue.save %>
+
+						<% elsif issue.start_date == Date.new(1999,10,10) %>
+							-
+
+						<% else %>
+							<%= issue.start_date %>
+						<% end %>
+					</td>
+					<td><% if issue.due_date.nil? %> 
+							-
+							<% issue.due_date = "1999.10.10" %>
+							<% issue.save %>
+						<% elsif issue.due_date == Date.new(1999,10,10) %>	
+							-
+
+						<% else %>
+							<%= issue.due_date %>
+						<% end %>	
+					</td>
+					
+					</tr>		
+			<% end %>	
+
+			<% @team_members.each do |tm| %>
+				<% issue_to_member = Issue.find_by_assigned_to_id( tm.user_id ) %>
+				<% if !(issue_to_member) %>		
+					<% if (@filtered_project_id <= 0) && ((@filter_clicked != "1") || (@filtered_team_member_id == tm.user_id || @filtered_team_member_id == -1))  %>
+					
+						<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+							<td>
+								<% if TeamManager.find_by_user_id(tm.user_id) %>
+									<%= link_to User.find_by_id(tm.user_id).name, {:controller => "team_members", :action => "team_details", :from => "Parent", :member_manager_user_id => tm.user_id}, {:title => "This member is a team manager, click to see his managerial page", :class => "icon icon-cancel"} %>
+								<% else %>	
+									<%= User.find_by_id(tm.user_id).name %>
+								<% end %>
+							</td>
+							<td><%= l(:no_issue) %></td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td> 
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+						</tr>
+
+					<% end %>	
+
+
+				<% end %>	
+
+			<% end %>	
+			
+		</tbody>
+	</table>
+<% else %>
+	 <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+

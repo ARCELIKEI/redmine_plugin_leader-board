@@ -1,0 +1,45 @@
+<div class="contextual">
+	<%=link_to l(:back_admin),{ 	:controller => 'admin' , :action => 'index'},:class => "icon icon-cancel" %>
+	<%= link_to l(:new_team_manager), {:controller => 'team_managers', :action => 'new'} ,  :class => "icon icon-add" %>
+</div>
+
+<%= content_for :sidebar do %>
+	<h3> <%= l(:main_administration) %> </h3>
+		<div id="admin-menu">
+		  	<%= render_menu  :admin_menu %>
+		</div>
+<% end %>
+<h2> <%= l(:all_team_managers) %> </h2>
+<% if TeamManager.count > 0 %>
+	<table class="list ">
+		<thead>
+			<tr>
+				<th><%= l(:label_name) %></th>
+				<th><%= l(:label_title) %></th>
+				<th><%= l(:label_actions) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% TeamManager.all.each do |tm| %>
+				<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+					<td><%=link_to tm.name, {:controller => 'team_members', :action => 'index', :team_manager_id => tm.id}, {:title => "Click to see members of this team"}%></td>
+					<td><%=tm.title%></td>
+					<td><%=link_to l(:remove_from_list), {
+						:controller => 'team_managers' , 
+						:action => 'remove',
+						:id => tm.id
+						}, 
+						:confirm => "The team manager will be deleted"
+						%>
+					</td>
+				</tr>
+			<%end%>
+		</tbody>
+	</table>
+<% else %>
+	 <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+
+
+

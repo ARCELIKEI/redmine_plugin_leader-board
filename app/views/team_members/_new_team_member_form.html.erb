@@ -1,0 +1,15 @@
+<%= form_for @team_member, :url => {:controller => "team_members", :action => 'create', :team_manager_id => @team_manager.id} do |f| %>
+	
+		<p><%= f.label :user %> : <%= text_field_tag :user_name  %> <%= f.hidden_field :user_id  %></p>
+		<p><%= f.submit "Add Member" %></p>
+<% end %>
+
+<script type="text/javascript">
+    $( "#user_name" ).autocomplete({
+      source: <%= raw @users %>,
+      select: function( event, ui ) { 
+      	$('#team_member_user_id').val( ui.item.id);
+      }
+    });
+</script>
+

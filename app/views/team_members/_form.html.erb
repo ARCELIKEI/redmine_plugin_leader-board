@@ -1,0 +1,10 @@
+
+	<p><b><%= f.label :title_manager %></b>* <%= f.text_field :name, :required => :true, :class => 'wiki-edit' ,:label => 'Title'%></p>
+	<p><b><%= f.label :description_team %>* <%= f.text_area :description, :required => :true, :cols => 60, :rows => 15, :class => 'wiki-edit' %></b></p>
+	<p><b><%= f.label :rationale %>* <%= f.text_area :rationale, :required => :true, :cols => 60, :rows => 15, :class => 'wiki-edit' %></b></p>
+	<%= wikitoolbar_for 'proposal_description' %>
+	<%= wikitoolbar_for 'proposal_rationale' %>
+	<p><b> <%= f.label :team_member %> <%= f.select :team_member_id, TeamMember.all.collect{|t| ["#{t.user.name} - #{t.title}", t.user.id]}%></b></p>
+	<h4> Project Fields </h4>
+	<%= render :partial => 'enabled_modules_form', :locals => { :f => f} %>
+
