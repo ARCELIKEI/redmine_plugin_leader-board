@@ -10,7 +10,7 @@
 		</div>
 <% end %>
 <h2> <%= l(:all_team_managers) %> </h2>
-<% if TeamManager.count > 0 %>
+<% if @team_managers.length > 0 %>
 	<table class="list ">
 		<thead>
 			<tr>
@@ -20,15 +20,15 @@
 			</tr>
 		</thead>
 		<tbody>
-			<% TeamManager.all.each do |tm| %>
+			<% @team_managers.each do |tm| %>
 				<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
 					<td><%=link_to tm.name, {:controller => 'team_members', :action => 'index', :team_manager_id => tm.id}, {:title => "Click to see members of this team"}%></td>
 					<td><%=tm.title%></td>
 					<td><%=link_to l(:remove_from_list), {
-						:controller => 'team_managers' , 
+						:controller => 'team_managers' ,
 						:action => 'remove',
 						:id => tm.id
-						}, 
+						},
 						:confirm => "The team manager will be deleted"
 						%>
 					</td>
@@ -39,7 +39,3 @@
 <% else %>
 	 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
-
-
-
-

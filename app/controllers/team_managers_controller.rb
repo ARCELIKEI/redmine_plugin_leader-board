@@ -6,7 +6,14 @@ class TeamManagersController < ApplicationController
 
 	# displays all team managers in the system
 	def index
-		@team_managers = TeamManager.all
+		@all_team_managers = TeamManager.all
+		@team_managers = Array.new
+
+		@all_team_managers.each do |tm|
+			if User.find_by_id(tm.user_id) != nil
+				@team_managers.push(tm)
+			end
+		end
 	end
 
 	# new team manager

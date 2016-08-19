@@ -24,7 +24,15 @@ class TeamMembersController < ApplicationController
 
 
   	def index
-  		@team_members = @team_manager.team_members
+  		@all_team_members = @team_manager.team_members
+
+      @team_members = Array.new
+
+  		@all_team_members.each do |tm|
+  			if User.find_by_id(tm.user_id) != nil
+  				@team_members.push(tm)
+  			end
+  		end
   	end
 
 
